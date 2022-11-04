@@ -1,4 +1,5 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, property, hasOne} from '@loopback/repository';
+import {TipoSolicitud} from './tipo-solicitud.model';
 
 @model()
 export class TipoInmueble extends Entity {
@@ -33,6 +34,8 @@ export class TipoInmueble extends Entity {
   })
   bodega: string;
 
+  @hasOne(() => TipoSolicitud)
+  tipoSolicitud: TipoSolicitud;
 
   constructor(data?: Partial<TipoInmueble>) {
     super(data);

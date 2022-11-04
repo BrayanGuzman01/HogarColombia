@@ -1,29 +1,28 @@
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {Empleados} from '../models';
 import {EmpleadosRepository} from '../repositories';
+import {AutenticacionService} from '../services';
+const fetch = require("node-fetch")
 
 export class EmpleadoController {
   constructor(
     @repository(EmpleadosRepository)
-    public empleadosRepository : EmpleadosRepository,
+    public empleadosRepository : EmpleadosRepository
+    @service (AutenticacionService)
+    public  servicioAutenticacion : AutenticacionService
   ) {}
 
   @post('/empleados')
@@ -44,7 +43,22 @@ export class EmpleadoController {
     })
     empleados: Omit<Empleados, 'id'>,
   ): Promise<Empleados> {
-    return this.empleadosRepository.create(empleados);
+    //Generacion de clave para empleado
+    let clave = this.servicioAutenticacion.generarClave();
+    let claveCifrada = this.servicioAutenticacion.cifrarClave(clave);
+    empleados.clave = claveCifrada;
+    let e = await this.empleadosRepository.create(empleados);
+
+
+    //Vamos a notificar al empleado
+    let destino = empleados.email;
+    let asunto = "Registro en Hogar Colombia";
+    let contenido = `Buen día ${empleados.nombres} su nombre de usuario es ${empleados.email} y su contraseña es: ${clave}`
+    fetch(`http://127.0.0.1:5000/envio-correo?correo_destino=${destino}&asunto=${asunto}&mensaje=${contenido}`)
+      .then((data:any) => {
+        console.log(data);
+      })
+    return e;
   }
 
   @get('/empleados/count')
@@ -148,3 +162,7 @@ export class EmpleadoController {
     await this.empleadosRepository.deleteById(id);
   }
 }
+function then(arg0: (data: any) => void) {
+  throw new Error('Function not implemented.');
+}
+

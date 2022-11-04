@@ -53,6 +53,12 @@ export class Empleados extends Entity {
   })
   foto: string;
 
+  @property({
+    type: 'string',
+    required: true,
+  })
+  clave: string;
+
   @hasMany(() => Cliente, {through: {model: () => TipoSolicitud}})
   clientes: Cliente[];
 

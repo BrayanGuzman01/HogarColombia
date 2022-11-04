@@ -39,6 +39,11 @@ export class Cliente extends Entity {
     required: true,
   })
   ciudad: string;
+  @property({
+    type: 'string',
+    required: true,
+  })
+  clave: string;
 
   @hasMany(() => Inmuebles)
   inmuebles: Inmuebles[];
